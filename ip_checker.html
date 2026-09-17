@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}IP Reputation Checker - CYBER.INTEL{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        
+        <!-- Form Container -->
+        <div class="cyber-card" id="scanCard">
+            <div class="cyber-card-header border-bottom border-cyber-green-dim py-4 text-center">
+                <i class="bi bi-hdd-network-fill text-neon-purple fs-1 animate-pulse mb-2 d-block"></i>
+                <h3 class="font-mono text-neon-purple tracking-wide m-0">IP REPUTATION CHECKER</h3>
+                <small class="text-secondary font-mono text-xss text-uppercase">Correlate IP address with known malicious ranges, ISP networks, and proxy hosts</small>
+            </div>
+            
+            <div class="card-body p-4">
+                
+                <!-- Main Form Input -->
+                <div id="formContent">
+                    <form action="{{ url_for('analyze_ip') }}" method="POST" id="analyzerForm">
+                        <div class="mb-4">
+                            <label for="ip" class="form-label text-secondary font-mono text-xs">TARGET IPV4 ADDRESS</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-black border-cyber-green-dim text-neon-purple font-mono text-sm"><i class="bi bi-globe"></i></span>
+                                <input type="text" class="form-control cyber-input" id="ip" name="ip" placeholder="185.220.101.5" required autocomplete="off" pattern="^(\d{1,3}\.){3}\d{1,3}$">
+                            </div>
+                            <div class="form-text text-secondary mt-2">
+                                <i class="bi bi-info-circle text-neon-purple me-1"></i>
+                                Enter a valid IPv4 address (e.g., 8.8.8.8, 1.1.1.1). The scan queries reputation blacklists and scans for command and control flags.
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4 bg-black-dim border border-cyber-green-dim rounded-3 p-3">
+                            <h6 class="font-mono text-white mb-2"><i class="bi bi-cpu text-neon-purple me-2"></i>REPUTATION DATASETS</h6>
+                            <ul class="text-secondary text-sm mb-0 ps-3">
+                                <li>Scan history check (port scanners, brute-force logs).</li>
+                                <li>Proxy and Tor exit-node classification.</li>
+                                <li>ISP network lookup and server geolocalization approximation.</li>
+                                <li>Llama 3 malicious network matching.</li>
+                            </ul>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-cyber-purple w-100 py-3 font-mono border-neon-purple-btn">
+                            <i class="bi bi-search me-2"></i>QUERY IP REPUTATION
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Loader Block (Shown during analysis submission) -->
+                <div id="loaderArea" class="text-center py-5" style="display: none;">
+                    <div class="scan-loader purple-loader"></div>
+                    <h4 class="font-mono text-neon-purple animate-pulse mt-4">QUERYING NETWORK FEED FOR REPUTATION...</h4>
+                    <p class="text-secondary font-mono text-sm mt-2">Resolving ISP Details, ASN Logs & AI Intelligence Reports</p>
+                    <div class="progress bg-dark border border-cyber-green-dim mx-auto mt-4" style="max-width: 300px; height: 4px;">
+                        <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" style="width: 100%"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    /* Specialized styles for IP Purple accent */
+    .btn-cyber-purple {
+        background-color: transparent;
+        color: #bd5eff;
+        border: 1px solid #bd5eff;
+        font-family: var(--font-mono);
+        letter-spacing: 0.1em;
+        padding: 12px 24px;
+        text-transform: uppercase;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .btn-cyber-purple:hover {
+        background-color: #bd5eff;
+        color: var(--cyber-dark-bg);
+        box-shadow: 0 0 20px rgba(189, 94, 255, 0.4);
+        transform: translateY(-1px);
+    }
+    .border-neon-purple-btn {
+        border-color: rgba(189, 94, 255, 0.4);
+    }
+    .scan-loader.purple-loader {
+        border-top: 3px solid #bd5eff;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById('analyzerForm');
+        const formContent = document.getElementById('formContent');
+        const loaderArea = document.getElementById('loaderArea');
+        const scanCard = document.getElementById('scanCard');
+
+        if (form && formContent && loaderArea) {
+            form.addEventListener('submit', () => {
+                formContent.style.display = 'none';
+                loaderArea.style.display = 'block';
+                scanCard.style.borderColor = '#bd5eff';
+                scanCard.style.boxShadow = '0 0 20px rgba(189, 94, 255, 0.1)';
+            });
+        }
+    });
+</script>
+{% endblock %}

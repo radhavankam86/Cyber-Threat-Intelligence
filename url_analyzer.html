@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}URL Threat Analyzer - CYBER.INTEL{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        
+        <!-- Form Container -->
+        <div class="cyber-card" id="scanCard">
+            <div class="cyber-card-header border-bottom border-cyber-green-dim py-4 text-center">
+                <i class="bi bi-link-45deg text-neon-cyan fs-1 animate-pulse mb-2 d-block"></i>
+                <h3 class="font-mono text-neon-cyan tracking-wide m-0">URL THREAT ANALYZER</h3>
+                <small class="text-secondary font-mono text-xss text-uppercase">Check for domain hijacking, phishing signals, and certificate flaws</small>
+            </div>
+            
+            <div class="card-body p-4">
+                
+                <!-- Main Form Input -->
+                <div id="formContent">
+                    <form action="{{ url_for('analyze_url') }}" method="POST" id="analyzerForm">
+                        <div class="mb-4">
+                            <label for="url" class="form-label text-secondary font-mono text-xs">SUSPICIOUS URL / DOMAIN TARGET</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-black border-cyber-green-dim text-neon-cyan font-mono text-sm">HTTP(S)://</span>
+                                <input type="text" class="form-control cyber-input" id="url" name="url" placeholder="example-malicious-site.com/verify-account" required autocomplete="off">
+                            </div>
+                            <div class="form-text text-secondary mt-2">
+                                <i class="bi bi-info-circle text-neon-cyan me-1"></i>
+                                Enter the raw URL or base domain. The system will inspect routing flags, special characters, and run secondary deep intelligence matching.
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4 bg-black-dim border border-cyber-green-dim rounded-3 p-3">
+                            <h6 class="font-mono text-white mb-2"><i class="bi bi-shield-fill-exclamation text-neon-cyan me-2"></i>ANALYSIS PROTOCOLS</h6>
+                            <ul class="text-secondary text-sm mb-0 ps-3">
+                                <li>Phishing keywords heuristics checking (e.g., login, verify, secure tokens).</li>
+                                <li>Subdomain manipulation and brand-impersonation analysis.</li>
+                                <li>SSL certification presence and transport layer inspection.</li>
+                                <li>Llama 3 LLM deep contextual analysis.</li>
+                            </ul>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-cyber-cyan w-100 py-3 font-mono">
+                            <i class="bi bi-radar me-2"></i>LAUNCH ANALYSIS SCAN
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Loader Block (Shown during analysis submission) -->
+                <div id="loaderArea" class="text-center py-5" style="display: none;">
+                    <div class="scan-loader"></div>
+                    <h4 class="font-mono text-neon-cyan animate-pulse mt-4">INSPECTING DESTINATION LINK...</h4>
+                    <p class="text-secondary font-mono text-sm mt-2">Querying Threat Intelligence Feeds & Running AI Analysis</p>
+                    <div class="progress bg-dark border border-cyber-cyan-dim mx-auto mt-4" style="max-width: 300px; height: 4px;">
+                        <div class="progress-bar bg-info progress-bar-striped progress-bar-animated" style="width: 100%"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById('analyzerForm');
+        const formContent = document.getElementById('formContent');
+        const loaderArea = document.getElementById('loaderArea');
+        const scanCard = document.getElementById('scanCard');
+
+        if (form && formContent && loaderArea) {
+            form.addEventListener('submit', () => {
+                formContent.style.display = 'none';
+                loaderArea.style.display = 'block';
+                // Remove header shadow and borders to emphasize loader
+                scanCard.classList.add('glow-info');
+            });
+        }
+    });
+</script>
+{% endblock %}

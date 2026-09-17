@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}Historical Reports - CYBER.INTEL{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    
+    <!-- Title Page Header -->
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 border-bottom border-cyber-green-dim pb-3">
+        <div>
+            <h3 class="font-mono text-neon-green tracking-wide m-0"><i class="bi bi-clock-history me-2 text-neon-green"></i>THREAT INTELLIGENCE LOGS</h3>
+            <small class="text-secondary font-mono text-uppercase text-xs">Archived threat intelligence scanning operations</small>
+        </div>
+        <div class="mt-3 mt-md-0 d-flex gap-2">
+            <a href="{{ url_for('analyze_url') }}" class="btn btn-outline-cyber-green btn-sm font-mono"><i class="bi bi-link-45deg me-1"></i>URL SCAN</a>
+            <a href="{{ url_for('analyze_ip') }}" class="btn btn-outline-cyber-green btn-sm font-mono"><i class="bi bi-hdd-network me-1"></i>IP CHECK</a>
+            <a href="{{ url_for('analyze_email') }}" class="btn btn-outline-cyber-green btn-sm font-mono"><i class="bi bi-envelope me-1"></i>EMAIL SCAN</a>
+        </div>
+    </div>
+
+    <!-- Search / Filter Card -->
+    <div class="cyber-card mb-4">
+        <div class="card-body p-3">
+            <div class="row align-items-center">
+                <div class="col-md-8 mb-2 mb-md-0">
+                    <div class="input-group">
+                        <span class="input-group-text bg-black border-cyber-green-dim text-neon-green font-mono"><i class="bi bi-filter-square-fill"></i></span>
+                        <input type="text" id="searchInput" class="form-control cyber-input" placeholder="Search targets, threat types, risk indexes, or levels...">
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end font-mono">
+                    <span class="text-secondary text-sm">Active Records:</span>
+                    <span class="badge bg-cyber-green text-dark ms-2 font-mono fs-6">{{ threats|length }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Database Logs Table -->
+    <div class="cyber-card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table cyber-table text-white mb-0" id="historyTable">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">TYPE</th>
+                            <th>TARGET OBJECT</th>
+                            <th>RISK INDEX</th>
+                            <th>SEVERITY</th>
+                            <th>DATE GENERATED</th>
+                            <th class="pe-4 text-end">ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for threat in threats %}
+                        <tr>
+                            <td class="ps-4">
+                                {% if threat.type == 'URL' %}
+                                    <span class="badge bg-dark text-neon-cyan border border-cyber-cyan-dim font-mono"><i class="bi bi-link-45deg me-1"></i>URL</span>
+                                {% elif threat.type == 'IP' %}
+                                    <span class="badge bg-dark text-neon-purple border border-secondary font-mono"><i class="bi bi-hdd-network me-1"></i>IP</span>
+                                {% else %}
+                                    <span class="badge bg-dark text-neon-green border border-cyber-green-dim font-mono"><i class="bi bi-envelope me-1"></i>EMAIL</span>
+                                {% endif %}
+                            </td>
+                            <td class="font-mono text-slate-300 truncate" style="max-width: 250px;" title="{{ threat.target }}">
+                                {{ threat.target }}
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="progress bg-dark border border-secondary me-2" style="width: 60px; height: 6px;">
+                                        <div class="progress-bar {% if threat.score >= 70 %}bg-danger{% elif threat.score >= 35 %}bg-warning{% else %}bg-success{% endif %}" role="progressbar" style="width: {{ threat.score }}%" aria-valuenow="{{ threat.score }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <span class="font-mono text-sm">{{ threat.score }}/100</span>
+                                </div>
+                            </td>
+                            <td>
+                                {% if threat.risk_level == 'High Risk' %}
+                                    <span class="badge badge-danger font-mono"><i class="bi bi-shield-fill-exclamation me-1"></i>HIGH</span>
+                                {% elif threat.risk_level == 'Suspicious' %}
+                                    <span class="badge badge-suspicious font-mono"><i class="bi bi-shield-fill-minus me-1"></i>MEDIUM</span>
+                                {% else %}
+                                    <span class="badge badge-safe font-mono"><i class="bi bi-shield-fill-check me-1"></i>SAFE</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-secondary font-mono text-sm">{{ threat.timestamp }}</td>
+                            <td class="pe-4 text-end">
+                                <div class="btn-group gap-2">
+                                    <a href="{{ url_for('threat_details', threat_id=threat.id) }}" class="btn btn-outline-cyber-green btn-sm font-mono">
+                                        <i class="bi bi-eye-fill"></i> VIEW
+                                    </a>
+                                    <a href="{{ url_for('export_txt', threat_id=threat.id) }}" class="btn btn-outline-cyber-green btn-sm font-mono" title="Export txt report">
+                                        <i class="bi bi-download"></i>
+                                    </a>
+                                    <form action="{{ url_for('delete_threat', threat_id=threat.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Purge this record?');">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm font-mono" title="Delete scan">
+                                            <i class="bi bi-trash3-fill"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-secondary">
+                                <i class="bi bi-archive-fill fs-1 mb-3 d-block text-secondary"></i>
+                                <span class="font-mono text-uppercase">No scanning history logged.</span><br>
+                                <small class="text-xss d-block mt-2">Historical database records will appear here as you run analysis tools.</small>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Fast table search
+        const searchInput = document.getElementById('searchInput');
+        const rows = document.querySelectorAll('#historyTable tbody tr');
+        
+        if (searchInput && rows.length > 0) {
+            searchInput.addEventListener('keyup', () => {
+                const query = searchInput.value.toLowerCase().trim();
+                
+                rows.forEach(row => {
+                    const text = row.innerText.toLowerCase();
+                    if (text.includes(query)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}

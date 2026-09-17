@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - CYBER.INTEL Access Control{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center min-vh-75 py-5">
+    <div class="col-md-5">
+        <div class="cyber-card">
+            <div class="cyber-card-header text-center border-bottom border-cyber-green-dim py-4">
+                <i class="bi bi-shield-lock-fill text-neon-green fs-1 animate-pulse mb-2 d-block"></i>
+                <h3 class="font-mono text-neon-green tracking-wide m-0">AUTHENTICATION REQUIRED</h3>
+                <small class="text-secondary font-mono text-xss text-uppercase">Enter authorized operational credentials</small>
+            </div>
+            
+            <div class="card-body p-4">
+                <form action="{{ url_for('login') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="username" class="form-label text-secondary font-mono text-xs">OPERATOR USERNAME</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-black border-cyber-green-dim text-neon-green">
+                                <i class="bi bi-terminal"></i>
+                            </span>
+                            <input type="text" class="form-control cyber-input" id="username" name="username" placeholder="Enter username" required autocomplete="username">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="password" class="form-label text-secondary font-mono text-xs">SECURITY PASSCODE</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-black border-cyber-green-dim text-neon-green">
+                                <i class="bi bi-key"></i>
+                            </span>
+                            <input type="password" class="form-control cyber-input" id="password" name="password" placeholder="••••••••" required autocomplete="current-password">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-cyber-green w-100 py-3 mb-3">
+                        <i class="bi bi-unlock-fill me-2"></i>DECRYPT & ACCESS
+                    </button>
+                </form>
+            </div>
+            
+            <div class="cyber-card-header text-center border-top border-cyber-green-dim py-3 bg-black-dim">
+                <p class="mb-0 text-secondary font-mono text-sm">
+                    New operator instance? <a href="{{ url_for('register') }}" class="text-neon-cyan text-decoration-none">Register Identity</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

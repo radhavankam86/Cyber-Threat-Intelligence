@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Security Assistant - CYBER.INTEL{% endblock %}
+
+{% block extra_head %}
+<!-- Marked.js for markdown rendering in chat bubble -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row g-4">
+        
+        <!-- Quick Reference Vulnerabilities Library (Left panel) -->
+        <div class="col-lg-4">
+            <div class="cyber-card h-100">
+                <div class="cyber-card-header border-bottom border-cyber-green-dim py-3">
+                    <h5 class="m-0 font-mono text-white"><i class="bi bi-book-half me-2"></i>SECURE KNOWLEDGE LIBRARY</h5>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-secondary font-mono text-sm mb-3">Click on any topic tag below to request detailed explanations, mechanics, impacts, and mitigation rules from the Security Assistant:</p>
+                    
+                    <div class="quick-vulns-wrapper">
+                        <div class="vuln-tag w-100 mb-2 py-2 px-3 text-start" data-query="Explain SQL Injection and how to prevent it">
+                            <i class="bi bi-code-square me-2 text-neon-cyan"></i> SQL Injection (SQLi)
+                        </div>
+                        <div class="vuln-tag w-100 mb-2 py-2 px-3 text-start" data-query="Explain Cross-Site Scripting (XSS) and mitigation">
+                            <i class="bi bi-filetype-js me-2 text-neon-cyan"></i> Cross-Site Scripting (XSS)
+                        </div>
+                        <div class="vuln-tag w-100 mb-2 py-2 px-3 text-start" data-query="Explain Cross-Site Request Forgery (CSRF) and anti-CSRF tokens">
+                            <i class="bi bi-shield-lock-fill me-2 text-neon-cyan"></i> Cross-Site Request Forgery (CSRF)
+                        </div>
+                        <div class="vuln-tag w-100 mb-2 py-2 px-3 text-start" data-query="Explain Insecure Direct Object References (IDOR)">
+                            <i class="bi bi-file-earmark-lock2-fill me-2 text-neon-cyan"></i> IDOR Vulnerability
+                        </div>
+                    </div>
+
+                    <hr class="border-cyber-green-dim my-4">
+
+                    <div class="info-block bg-black-dim border border-cyber-green-dim rounded-3 p-3">
+                        <h6 class="font-mono text-white mb-2"><i class="bi bi-cpu-fill text-neon-cyan me-2"></i>AI ENGINE STATUS</h6>
+                        <p class="text-secondary text-sm mb-0">
+                            Core: <span class="text-white font-mono">Llama 3 (Groq API)</span><br>
+                            Role: <span class="text-white font-mono">Senior Security Specialist</span><br>
+                            Scope: <span class="text-white font-mono">Vulnerability explanation, mitigation advisories, code review, secure design patterns.</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Console (Right panel) -->
+        <div class="col-lg-8">
+            <div class="cyber-card chat-window">
+                <!-- Chat Header -->
+                <div class="cyber-card-header border-bottom border-cyber-green-dim d-flex align-items-center justify-content-between">
+                    <h5 class="m-0 font-mono text-white"><i class="bi bi-chat-dots-fill text-neon-green me-2"></i>AI SECURITY ASSISTANT CONSOLE</h5>
+                    <span class="badge bg-dark text-neon-green border border-cyber-green-dim font-mono">AI.ONLINE</span>
+                </div>
+                
+                <!-- Messages Box -->
+                <div class="chat-messages d-flex flex-column" id="chatMessages">
+                    <!-- Default System Welcome -->
+                    <div class="message-bubble incoming">
+                        <div class="d-flex align-items-center mb-2 font-mono text-neon-cyan text-sm">
+                            <i class="bi bi-robot me-2"></i> CYBER.INTEL ASSISTANT
+                        </div>
+                        <div class="message-text font-mono">
+                            Greetings, Operator. I am the Cyber Security Intelligence assistant. 
+                            I can analyze vulnerabilities, explain exploit concepts, review snippets for flaws, and suggest mitigation methods. 
+                            <br><br>
+                            How can I assist you with threat intelligence today?
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Input area -->
+                <div class="chat-input-area">
+                    <form id="chatForm" class="d-flex gap-2">
+                        <input type="text" id="chatInput" class="form-control cyber-input font-mono flex-grow-1" placeholder="Query vulnerability details, code blocks, or general security concepts..." required autocomplete="off">
+                        <button type="submit" class="btn btn-cyber-green px-4" id="sendBtn">
+                            <i class="bi bi-send-fill"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .bg-black-dim {
+        background-color: rgba(0,0,0,0.2);
+    }
+    /* Customize Marked.js render style in chat bubble */
+    .message-text pre {
+        background-color: rgba(0, 0, 0, 0.5) !important;
+        border: 1px solid rgba(0, 255, 204, 0.2);
+        padding: 12px;
+        border-radius: 6px;
+        overflow-x: auto;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+    .message-text code {
+        font-family: var(--font-mono);
+        color: var(--neon-green);
+        background-color: rgba(0, 0, 0, 0.2);
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    .message-text pre code {
+        color: #f1f5f9;
+        background-color: transparent;
+        padding: 0;
+    }
+    .message-text p {
+        margin-bottom: 8px;
+    }
+    .message-text ul, .message-text ol {
+        margin-bottom: 8px;
+        padding-left: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const chatForm = document.getElementById("chatForm");
+        const chatInput = document.getElementById("chatInput");
+        const chatMessages = document.getElementById("chatMessages");
+        const quickTags = document.querySelectorAll(".vuln-tag");
+
+        // Helper to append a message
+        function appendMessage(sender, text, isOutgoing = false) {
+            const bubble = document.createElement("div");
+            bubble.classList.add("message-bubble");
+            bubble.classList.add(isOutgoing ? "outgoing" : "incoming");
+            
+            const header = document.createElement("div");
+            header.classList.add("d-flex", "align-items-center", "mb-2", "font-mono", "text-sm");
+            if (isOutgoing) {
+                header.classList.add("text-neon-green");
+                header.innerHTML = `<i class="bi bi-person-fill me-2"></i> OPERATOR`;
+            } else {
+                header.classList.add("text-neon-cyan");
+                header.innerHTML = `<i class="bi bi-robot me-2"></i> CYBER.INTEL ASSISTANT`;
+            }
+            
+            const body = document.createElement("div");
+            body.classList.add("message-text");
+            
+            if (isOutgoing) {
+                body.textContent = text;
+                body.style.fontFamily = "var(--font-mono)";
+            } else {
+                // Parse markdown using marked.js for AI responses
+                body.innerHTML = marked.parse(text);
+            }
+            
+            bubble.appendChild(header);
+            bubble.appendChild(body);
+            chatMessages.appendChild(bubble);
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Submitting query
+        function submitQuery(queryText) {
+            if (!queryText) return;
+            
+            // Append User message
+            appendMessage("User", queryText, true);
+            chatInput.value = "";
+            
+            // Append Loading Indicator bubble
+            const loaderBubble = document.createElement("div");
+            loaderBubble.classList.add("message-bubble", "incoming");
+            loaderBubble.id = "chatLoaderBubble";
+            loaderBubble.innerHTML = `
+                <div class="d-flex align-items-center font-mono text-sm text-neon-cyan mb-2">
+                    <i class="bi bi-robot me-2 animate-pulse"></i> CYBER.INTEL ASSISTANT
+                </div>
+                <div class="d-flex align-items-center font-mono">
+                    <span class="pulse-dot me-2"></span>
+                    <span>AI Engine Processing Query...</span>
+                </div>
+            `;
+            chatMessages.appendChild(loaderBubble);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // AJAX request to backend
+            fetch("/assistant", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ message: queryText })
+            })
+            .then(res => res.json())
+            .then(data => {
+                // Remove loading bubble
+                const loader = document.getElementById("chatLoaderBubble");
+                if (loader) loader.remove();
+                
+                // Append AI Response
+                appendMessage("Assistant", data.response);
+            })
+            .catch(err => {
+                const loader = document.getElementById("chatLoaderBubble");
+                if (loader) loader.remove();
+                
+                appendMessage("Assistant", "**Error**: Failed to reach security terminal. Please check network logs.");
+            });
+        }
+
+        // Submit form handler
+        chatForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const text = chatInput.value.trim();
+            submitQuery(text);
+        });
+
+        // Click handler for knowledge tags
+        quickTags.forEach(tag => {
+            tag.addEventListener("click", () => {
+                const query = tag.getAttribute("data-query");
+                submitQuery(query);
+            });
+        });
+    });
+</script>
+{% endblock %}

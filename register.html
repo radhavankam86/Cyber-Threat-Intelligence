@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Register Operator - CYBER.INTEL Platform{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center min-vh-75 py-5">
+    <div class="col-md-5">
+        <div class="cyber-card">
+            <div class="cyber-card-header text-center border-bottom border-cyber-green-dim py-4">
+                <i class="bi bi-shield-plus text-neon-cyan fs-1 animate-pulse mb-2 d-block"></i>
+                <h3 class="font-mono text-neon-cyan tracking-wide m-0">IDENTITY REGISTRATION</h3>
+                <small class="text-secondary font-mono text-xss text-uppercase">Register new cybersecurity node operator</small>
+            </div>
+            
+            <div class="card-body p-4">
+                <form action="{{ url_for('register') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="username" class="form-label text-secondary font-mono text-xs">OPERATOR USERNAME</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-black border-cyber-green-dim text-neon-cyan">
+                                <i class="bi bi-person"></i>
+                            </span>
+                            <input type="text" class="form-control cyber-input" id="username" name="username" placeholder="Choose username" required autocomplete="username">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label text-secondary font-mono text-xs">OPERATOR EMAIL</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-black border-cyber-green-dim text-neon-cyan">
+                                <i class="bi bi-envelope"></i>
+                            </span>
+                            <input type="email" class="form-control cyber-input" id="email" name="email" placeholder="operator@cyber.intel" required autocomplete="email">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label text-secondary font-mono text-xs">SECURITY PASSCODE (MIN 6 CHARS)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-black border-cyber-green-dim text-neon-cyan">
+                                <i class="bi bi-key-fill"></i>
+                            </span>
+                            <input type="password" class="form-control cyber-input" id="password" name="password" placeholder="••••••••" required autocomplete="new-password">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="confirm_password" class="form-label text-secondary font-mono text-xs">CONFIRM SECURITY PASSCODE</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-black border-cyber-green-dim text-neon-cyan">
+                                <i class="bi bi-key"></i>
+                            </span>
+                            <input type="password" class="form-control cyber-input" id="confirm_password" name="confirm_password" placeholder="••••••••" required autocomplete="new-password">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-cyber-cyan w-100 py-3 mb-3">
+                        <i class="bi bi-shield-check me-2"></i>INITIALIZE OPERATOR
+                    </button>
+                </form>
+            </div>
+            
+            <div class="cyber-card-header text-center border-top border-cyber-green-dim py-3 bg-black-dim">
+                <p class="mb-0 text-secondary font-mono text-sm">
+                    Already registered? <a href="{{ url_for('login') }}" class="text-neon-green text-decoration-none">Login Console</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

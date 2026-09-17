@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Email Threat Analyzer - CYBER.INTEL{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        
+        <!-- Form Container -->
+        <div class="cyber-card" id="scanCard">
+            <div class="cyber-card-header border-bottom border-cyber-green-dim py-4 text-center">
+                <i class="bi bi-envelope-exclamation-fill text-neon-green fs-1 animate-pulse mb-2 d-block"></i>
+                <h3 class="font-mono text-neon-green tracking-wide m-0">EMAIL PHISHING & SCAM ANALYZER</h3>
+                <small class="text-secondary font-mono text-xss text-uppercase">Scan email content for social engineering tricks, fraudulent links, and sender spoofing signs</small>
+            </div>
+            
+            <div class="card-body p-4">
+                
+                <!-- Main Form Input -->
+                <div id="formContent">
+                    <form action="{{ url_for('analyze_email') }}" method="POST" id="analyzerForm">
+                        
+                        <div class="mb-3">
+                            <label for="subject" class="form-label text-secondary font-mono text-xs">EMAIL SUBJECT LINE (OPTIONAL)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-black border-cyber-green-dim text-neon-green font-mono text-sm"><i class="bi bi-tag-fill"></i></span>
+                                <input type="text" class="form-control cyber-input" id="subject" name="subject" placeholder="e.g., Security Update: Action Required Immediately" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="body" class="form-label text-secondary font-mono text-xs">EMAIL BODY / CONTENT (REQUIRED)</label>
+                            <textarea class="form-control cyber-input font-mono" id="body" name="body" rows="8" placeholder="Paste the entire text body of the email here..." required></textarea>
+                            <div class="form-text text-secondary mt-2">
+                                <i class="bi bi-info-circle text-neon-green me-1"></i>
+                                Paste the exact text. The scanning pipeline evaluates linguistic indicators, urgency signatures, financial demands, and requests for private information.
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4 bg-black-dim border border-cyber-green-dim rounded-3 p-3">
+                            <h6 class="font-mono text-white mb-2"><i class="bi bi-file-earmark-code text-neon-green me-2"></i>EMAIL THREAT VECTORS</h6>
+                            <ul class="text-secondary text-sm mb-0 ps-3">
+                                <li>Urgency / intimidation detection (e.g., suspension, lockouts).</li>
+                                <li>Financial scams and credential theft requests (SSN, credit card, passwords).</li>
+                                <li>Suspicious sender spoofing text indicators.</li>
+                                <li>Contextual analysis using Llama 3 models.</li>
+                            </ul>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-cyber-green w-100 py-3 font-mono">
+                            <i class="bi bi-shield-exclamation me-2"></i>ANALYZE EMAIL CONTENT
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Loader Block (Shown during analysis submission) -->
+                <div id="loaderArea" class="text-center py-5" style="display: none;">
+                    <div class="scan-loader"></div>
+                    <h4 class="font-mono text-neon-green animate-pulse mt-4">PARSING EMAIL CONTENT FOR PHISHING PATTERNS...</h4>
+                    <p class="text-secondary font-mono text-sm mt-2">Evaluating Contextual Urgency & AI Threat Classification</p>
+                    <div class="progress bg-dark border border-cyber-green-dim mx-auto mt-4" style="max-width: 300px; height: 4px;">
+                        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" style="width: 100%"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById('analyzerForm');
+        const formContent = document.getElementById('formContent');
+        const loaderArea = document.getElementById('loaderArea');
+        const scanCard = document.getElementById('scanCard');
+
+        if (form && formContent && loaderArea) {
+            form.addEventListener('submit', () => {
+                formContent.style.display = 'none';
+                loaderArea.style.display = 'block';
+                scanCard.classList.add('glow-success');
+            });
+        }
+    });
+</script>
+{% endblock %}

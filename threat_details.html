@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+
+{% block title %}Scan Details #{{ threat.id }} - CYBER.INTEL{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row g-4">
+        
+        <!-- Left Column: Metrics & Indicators -->
+        <div class="col-lg-5">
+            <div class="cyber-card mb-4 {% if threat.risk_level == 'High Risk' %}glow-danger{% elif threat.risk_level == 'Suspicious' %}glow-warning{% else %}glow-success{% endif %}">
+                <div class="cyber-card-header border-bottom border-cyber-green-dim py-3 text-center">
+                    <span class="badge bg-dark border font-mono text-uppercase {% if threat.type == 'URL' %}text-neon-cyan border-cyber-cyan-dim{% elif threat.type == 'IP' %}text-neon-purple border-secondary{% else %}text-neon-green border-cyber-green-dim{% endif %} mb-2">
+                        {{ threat.type }} ANALYSIS RECORD
+                    </span>
+                    <h4 class="font-mono text-white text-uppercase tracking-wider m-0">SECURITY METRICS</h4>
+                </div>
+                
+                <div class="card-body p-4 text-center">
+                    <!-- Gauge Score -->
+                    <div class="d-inline-block position-relative mb-4">
+                        <div class="score-radial-glow {% if threat.score >= 70 %}radial-red{% elif threat.score >= 35 %}radial-yellow{% else %}radial-green{% endif %}">
+                            <span class="font-mono display-4 d-block text-white">{{ threat.score }}</span>
+                            <small class="text-secondary font-mono text-xs uppercase">RISK INDEX</small>
+                        </div>
+                    </div>
+
+                    <!-- Risk Level Badges -->
+                    <div class="mb-3">
+                        {% if threat.risk_level == 'High Risk' %}
+                            <span class="badge badge-danger px-4 py-2 fs-5 font-mono"><i class="bi bi-shield-fill-exclamation me-2"></i>HIGH RISK</span>
+                        {% elif threat.risk_level == 'Suspicious' %}
+                            <span class="badge badge-suspicious px-4 py-2 fs-5 font-mono"><i class="bi bi-shield-fill-minus me-2"></i>SUSPICIOUS</span>
+                        {% else %}
+                            <span class="badge badge-safe px-4 py-2 fs-5 font-mono"><i class="bi bi-shield-fill-check me-2"></i>SAFE / CLEAN</span>
+                        {% endif %}
+                    </div>
+
+                    <p class="text-secondary mb-0">
+                        Object: <code class="text-white font-mono word-break">{{ threat.target }}</code>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Action Controls Card -->
+            <div class="cyber-card">
+                <div class="cyber-card-header border-bottom border-cyber-green-dim py-3">
+                    <h5 class="m-0 font-mono text-white"><i class="bi bi-gear-fill me-2"></i>CONTROLS</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-grid gap-3">
+                        <a href="{{ url_for('export_txt', threat_id=threat.id) }}" class="btn btn-cyber-green py-3">
+                            <i class="bi bi-download me-2"></i>EXPORT INTEL REPORT (TXT)
+                        </a>
+                        
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <a href="{{ url_for('history') }}" class="btn btn-outline-secondary w-100 py-3 font-mono">
+                                    <i class="bi bi-arrow-left me-2"></i>LOG HISTORY
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <form action="{{ url_for('delete_threat', threat_id=threat.id) }}" method="POST" onsubmit="return confirm('Permanently purge this threat intelligence record?');">
+                                    <button type="submit" class="btn btn-outline-danger w-100 py-3 font-mono">
+                                        <i class="bi bi-trash3 me-2"></i>PURGE LOG
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Technical Explanations & Recommendations -->
+        <div class="col-lg-7">
+            <!-- Details Analysis -->
+            <div class="cyber-card mb-4">
+                <div class="cyber-card-header border-bottom border-cyber-green-dim py-3">
+                    <h5 class="m-0 font-mono text-white">
+                        <i class="bi bi-file-earmark-medical-fill text-neon-cyan me-2"></i>THREAT ASSESSMENT REPORT
+                    </h5>
+                </div>
+                
+                <div class="card-body p-4">
+                    
+                    <!-- Metadata block -->
+                    <div class="row g-3 mb-4 text-sm font-mono border-bottom border-cyber-green-dim pb-3">
+                        <div class="col-sm-6">
+                            <span class="text-secondary">SCAN TIMESTAMP:</span> <span class="text-white">{{ threat.timestamp }}</span>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-secondary">RECORD KEY ID:</span> <span class="text-white">#{{ threat.id }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Type Specific Details -->
+                    {% if threat.type == 'URL' %}
+                    <div class="mb-4">
+                        <h6 class="font-mono text-neon-cyan mb-2">THREAT CATEGORY:</h6>
+                        <span class="badge bg-black text-white border border-cyber-cyan-dim font-mono fs-6 py-2 px-3">{{ result.category }}</span>
+                    </div>
+                    {% elif threat.type == 'IP' %}
+                    <div class="row g-3 mb-4">
+                        <div class="col-sm-6">
+                            <h6 class="font-mono text-neon-purple mb-1">INTERNET SERVICE PROVIDER:</h6>
+                            <span class="text-white font-mono">{{ result.isp }}</span>
+                        </div>
+                        <div class="col-sm-6">
+                            <h6 class="font-mono text-neon-purple mb-1">GEOGRAPHIC COUNTRY:</h6>
+                            <span class="text-white font-mono"><i class="bi bi-geo-alt-fill me-1"></i>{{ result.country }}</span>
+                        </div>
+                    </div>
+                    {% elif threat.type == 'Email' %}
+                    <div class="mb-4">
+                        <h6 class="font-mono text-neon-green mb-2">DETECTED FRAUD FLAGS:</h6>
+                        {% if result.indicators_found %}
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for ind in result.indicators_found %}
+                                    <span class="badge bg-black text-neon-green border border-cyber-green-dim font-mono py-2 px-3">{{ ind }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <span class="text-secondary font-mono">No keyword triggers detected.</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Summary & AI Evaluation -->
+                    <div class="mb-4 bg-black-dim border border-cyber-green-dim rounded-3 p-3">
+                        <h6 class="font-mono text-white mb-2"><i class="bi bi-terminal-fill text-neon-green me-2"></i>ANALYSIS SUMMARY</h6>
+                        <p class="text-slate-300 mb-0 font-mono">{{ report.summary }}</p>
+                    </div>
+
+                    <div class="mb-0">
+                        <h6 class="font-mono text-white mb-2"><i class="bi bi-chat-left-text-fill text-neon-cyan me-2"></i>TECHNICAL DISCLOSURE & ANALYSIS</h6>
+                        <div class="explanation-box text-slate-300 font-mono" style="white-space: pre-line; line-height: 1.6;">
+                            {{ result.explanation or result.details }}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="cyber-card">
+                <div class="cyber-card-header border-bottom border-cyber-green-dim py-3">
+                    <h5 class="m-0 font-mono text-white">
+                        <i class="bi bi-shield-shaded text-neon-green me-2"></i>ACTIONABLE MITIGATION RECOMMENDATIONS
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    {% if report.recommendation %}
+                        <ul class="list-unstyled mb-0">
+                            {% for rec in report.recommendation.split('\n') %}
+                                {% if rec.strip() %}
+                                <li class="d-flex align-items-start mb-3">
+                                    <i class="bi bi-shield-fill-check text-neon-green me-3 fs-5 flex-shrink-0"></i>
+                                    <span class="text-slate-300 font-mono">{{ rec.strip() }}</span>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-secondary mb-0">No mitigation recommendations generated for this threat index.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .word-break {
+        word-break: break-all;
+    }
+    .bg-black-dim {
+        background-color: rgba(0, 0, 0, 0.25);
+    }
+    .score-radial-glow {
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: var(--cyber-dark-bg);
+        border: 2px solid;
+    }
+    .radial-green {
+        border-color: var(--neon-green);
+        box-shadow: 0 0 25px rgba(0, 255, 204, 0.25);
+    }
+    .radial-yellow {
+        border-color: var(--neon-orange);
+        box-shadow: 0 0 25px rgba(255, 170, 0, 0.25);
+    }
+    .radial-red {
+        border-color: var(--neon-red);
+        box-shadow: 0 0 25px rgba(255, 51, 102, 0.25);
+    }
+</style>
+{% endblock %}
